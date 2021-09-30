@@ -50,7 +50,6 @@ export default class VigenereCipheringMachine {
           newIndex = keyIndex - shift;
           while (newIndex < 0) newIndex = key.length + newIndex;
           if (key[newIndex] === this.latinAlphabet[k]) {
-
             arr[j] += Number(k);
             if (arr[j] > 25) arr[j] -= 26;
             arr[j] = this.latinAlphabet[arr[j]];
@@ -59,15 +58,40 @@ export default class VigenereCipheringMachine {
         }
       } else shift++;
     }
-    if (this.direct) {
-      return (arr.join(''));
-    }
-    return arr.reverse().join('');
+    return (this.direct) ? arr.join('') : arr.reverse().join('');
   }
-  decrypt(encryptedMessage, key) {
-    if (!encryptedMessage || !key) throw new Error('Incorrect arguments!');
-    encryptedMessage = encryptedMessage.toUpperCase();
+  decrypt(message, key) {
+    if (!message || !key) throw new Error('Incorrect arguments!');
+    message = message.toUpperCase();
     key = key.toUpperCase();
-
+    let keyIndex;
+    let found = 0;
+    let shift = 0;
+    let newIndex = 0;
+    const arr = [];
+    for (let j in message) {
+      for (let i in this.latinAlphabet) {
+        if (message[j] === this.latinAlphabet[i]) {
+          arr.push(Number(i));
+          found = 1;
+          break;
+        }
+      }
+      (found === 0) ? arr.push(message[j]): found = 0;
+      keyIndex = j % key.length;
+      if (typeof arr[j] === 'number') {
+        for (let k in this.latinAlphabet) {
+          newIndex = keyIndex - shift;
+          while (newIndex < 0) newIndex = key.length + newIndex;
+          if (key[newIndex] === this.latinAlphabet[k]) {
+            arr[j] -= Number(k);
+            if (arr[j] < 0) arr[j] += 26;
+            arr[j] = this.latinAlphabet[arr[j]];
+            break;
+          }
+        }
+      } else shift++;
+    }
+    return (this.direct) ? arr.join('') : arr.reverse().join('');
   }
 }
